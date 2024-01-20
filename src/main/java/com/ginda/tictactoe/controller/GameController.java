@@ -1,29 +1,41 @@
 package com.ginda.tictactoe.controller;
 
-import com.ginda.tictactoe.model.request.CreateGame;
+import com.ginda.tictactoe.exception.BadRequestException;
+import com.ginda.tictactoe.model.request.CreateGameRequest;
 import com.ginda.tictactoe.model.request.Move;
-import com.ginda.tictactoe.model.response.BoardResponse;
+import com.ginda.tictactoe.model.response.CreateGameResponse;
+import com.ginda.tictactoe.services.GameService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-
+@Slf4j
 @RequestMapping("/tic-tac-toe")
-@ResponseBody
+@RestController
 public class GameController {
 
-    private static final String REDIRECT_TO_GAME = "http://localhost/tic-tac-toe/game/%s";
-    @PostMapping(value = "/game")
-    public ResponseEntity<Void> game(@RequestBody CreateGame game) throws URISyntaxException {
-        String id = "";
-        return ResponseEntity.created(new URI(String.format(REDIRECT_TO_GAME).formatted(id))).build();
+    private final GameService service;
+
+    public GameController(GameService gameService) {
+        this.service = gameService;
     }
 
-    @PutMapping(value = "/game/{gameId}", produces = "text/plain")
-    public ResponseEntity<String> move(@RequestBody Move move) {
-        return ResponseEntity.ok().build();
+    private static final String REDIRECT_TO_GAME = "http://localhost:8081/tic-tac-toe/game/%s";
+
+    @GetMapping(value = "/game", produces = "application/json", consumes = "application/json")
+    public ResponseEntity<CreateGameResponse> createNewGame(@RequestBody CreateGameRequest request) throws BadRequestException {
+        log.info("create new game");
+        CreateGameResponse response = service.createNewGame(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+
+    @GetMapping(value = "/game/{gameId}", produces = "text/plain", consumes = "application/json")
+    public ResponseEntity<String> move(@RequestBody Move move, @PathVariable int gameId) {
+        log.info("make move");
+        String response = service.move(move, gameId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }
