@@ -44,7 +44,7 @@ public class GameServiceImpl implements GameService{
 
         int userId = getUserId(request.getUserName());
         String userName = getUserName(request.getUserName());
-        if(!isUserNameAvailable(userName)) { //if user already exist dont save
+        if(isUserNameAvailable(userName)) { //if user already exist dont save
             User user = new User();
             user.setUserName(userName);
             user.setId(userId);
@@ -122,6 +122,7 @@ public class GameServiceImpl implements GameService{
                 userNameSuffix+=1;
                 generatedUserName = "user"+userNameSuffix;
             }
+            return generatedUserName;
         }
         return userName;
     }
