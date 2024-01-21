@@ -33,7 +33,7 @@ public class StatisticContoller {
     @GetMapping(value = "/user/{userName}", produces = "application/json")
     public ResponseEntity<List<Game>> getGameStatisticByUserName(@PathVariable String userName) {
         log.info("get statistic by userid");
-        List<Game> response = service.getGameStatisticByUsestatixticrName(userName);
+        List<Game> response = service.getGameStatisticByUserName(userName);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
