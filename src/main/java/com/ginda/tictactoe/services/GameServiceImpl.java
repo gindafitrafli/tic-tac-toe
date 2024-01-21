@@ -60,14 +60,11 @@ public class GameServiceImpl implements GameService{
             gameId+=1;
         }
         game.setId(gameId);
-
         gameRepository.getGameList().add(game);
-
         CreateGameResponse response = new CreateGameResponse();
         response.setUserName(userName);
         response.setBoard("http://localhost:8081/tic-tac-toe/game/"+gameId);
         return response;
-
     }
 
     @Override
@@ -83,9 +80,9 @@ public class GameServiceImpl implements GameService{
         char [][] currentGrid = currentBoard.getGrid();
         currentGrid[move.getRow()-1][move.getColumn()-1] = currentChar;
         currentBoard.setGrid(currentGrid);
+        currentBoard.setFilledGrid(currentBoard.getFilledGrid()+1);
         Status currentBoardStatus = getBoardStatus(currentBoard, move.getRow() - 1, move.getColumn() - 1, currentChar);
 
-        currentBoard.setFilledGrid(currentBoard.getFilledGrid()+1);
         currentBoard.setStatus(currentBoardStatus);
         setCurrentBoard(currentBoard, gameId);
         BoardResponse boardResponse = new BoardResponse();
@@ -194,8 +191,7 @@ public class GameServiceImpl implements GameService{
             throw new BadRequestException("Not a valid grid position", fieldName);
         }
 
-        int currentBoard = getGame.getBoardList().size()-1;
-        Board board = getGame.getBoardList().get(currentBoard);
+        Board board = getCurrentBoard(gameId);
         char selectedGrid = board.getGrid()[move.getRow()-1][move.getColumn()-1];
         if (selectedGrid == 'X' || selectedGrid == 'O') {
             log.error("grid {}, {} already filled ", move.getRow(), move.getColumn());

@@ -25,11 +25,12 @@ public class GameRepository {
         for (Game game: gameList) {
             if (game.getId()==gameId){
                 currentGame = game;
+                break;
             }
             currentIdx+=1;
         }
 
-        List<Board> boardList = currentGame.getBoardList();
+        List<Board> boardList = new ArrayList<>(currentGame.getBoardList());
         boardList.add(board);
         currentGame.setBoardList(boardList);
         gameList.set(currentIdx, currentGame);
