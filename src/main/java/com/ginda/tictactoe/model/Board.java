@@ -7,6 +7,8 @@ public class Board {
     @JsonIgnore
     private int id;
     private char[][] grid;
+    @JsonIgnore
+    private int filledGrid;
 
     public int getId() {
         return id;
@@ -22,5 +24,13 @@ public class Board {
 
     public void setGrid(char[][] grid) {
         this.grid = grid;
+    }
+
+    public int getFilledGrid() {
+        return filledGrid;
+    }
+
+    public void setFilledGrid(int filledGrid) {
+        this.filledGrid = filledGrid;
     }
 }

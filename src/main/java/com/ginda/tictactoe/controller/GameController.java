@@ -1,6 +1,8 @@
 package com.ginda.tictactoe.controller;
 
 import com.ginda.tictactoe.exception.BadRequestException;
+import com.ginda.tictactoe.exception.ConflictException;
+import com.ginda.tictactoe.exception.NotFoundException;
 import com.ginda.tictactoe.model.request.CreateGameRequest;
 import com.ginda.tictactoe.model.request.Move;
 import com.ginda.tictactoe.model.response.CreateGameResponse;
@@ -32,7 +34,7 @@ public class GameController {
 
 
     @GetMapping(value = "/game/{gameId}", produces = "text/plain", consumes = "application/json")
-    public ResponseEntity<String> move(@RequestBody Move move, @PathVariable int gameId) {
+    public ResponseEntity<String> move(@RequestBody Move move, @PathVariable int gameId) throws ConflictException, BadRequestException, NotFoundException {
         log.info("make move");
         String response = service.move(move, gameId);
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -25,9 +25,13 @@ repositories {
 }
 
 dependencies {
+	implementation ('com.github.javafaker:javafaker:1.0.2') {
+		exclude group: '*', module:'*'
+	}
 	implementation 'org.springframework.boot:spring-boot-starter-actuator:3.2.2'
 	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+//
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'

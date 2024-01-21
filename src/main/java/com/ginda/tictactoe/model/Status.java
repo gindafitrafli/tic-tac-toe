@@ -8,7 +8,13 @@ public enum Status {
     DRAW("Nobody wins"),
     ON_GOING("On going");
     private final String value;
-    Status(String value) {
+     Status(String value) {
         this.value = value;
     }
+
+
+    public String value() {
+        return this.value;
+    }
+
 }
