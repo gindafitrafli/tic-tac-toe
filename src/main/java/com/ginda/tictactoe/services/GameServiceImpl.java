@@ -63,7 +63,7 @@ public class GameServiceImpl implements GameService{
 
         CreateGameResponse response = new CreateGameResponse();
         response.setUserName(userName);
-        response.setBoard("http://localhost:8081/tic-tac-toe/game"+gameId);
+        response.setBoard("http://localhost:8081/tic-tac-toe/game/"+gameId);
         return response;
 
     }

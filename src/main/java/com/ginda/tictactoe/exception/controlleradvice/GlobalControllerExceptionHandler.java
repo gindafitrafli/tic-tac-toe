@@ -20,7 +20,20 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalControllerExceptionHandler {
 
-    @ExceptionHandler(value = ConflictException.class)
+    @ExceptionHandler
+    public ResponseEntity<Map<String, Object>> handle(Throwable exception, WebRequest request) {
+
+        if (exception instanceof ConflictException){
+            return handleConflictException((ConflictException) exception, request);
+        } else if (exception instanceof BadRequestException) {
+            return handleBadRequestException((BadRequestException) exception, request);
+        } else if (exception instanceof NotFoundException) {
+            return handleNotFoundException((NotFoundException) exception, request);
+        } else {
+            return handleInternalException(exception, request);
+        }
+    };
+    
     public ResponseEntity<Map<String, Object>> handleConflictException(ConflictException exception, WebRequest request) {
         Map<String, Object> errorResponse = new LinkedHashMap<>();
         errorResponse.put("timestamp", ZonedDateTime.now(Clock.systemUTC()));
@@ -31,8 +44,6 @@ public class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     };
 
-
-    @ExceptionHandler(value = ConflictException.class)
     public ResponseEntity<Map<String, Object>> handleBadRequestException(BadRequestException exception, WebRequest request) {
         Map<String, Object> errorResponse = new LinkedHashMap<>();
         errorResponse.put("timestamp", ZonedDateTime.now(Clock.systemUTC()));
@@ -44,7 +55,6 @@ public class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     };
 
-    @ExceptionHandler(value = ConflictException.class)
     public ResponseEntity<Map<String, Object>> handleNotFoundException(NotFoundException exception, WebRequest request) {
         Map<String, Object> errorResponse = new LinkedHashMap<>();
         errorResponse.put("timestamp", ZonedDateTime.now(Clock.systemUTC()));
@@ -55,7 +65,7 @@ public class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     };
 
-    @ExceptionHandler(value = {Throwable.class})
+
     public ResponseEntity<Map<String, Object>> handleInternalException(Throwable throwable, WebRequest request) {
         log.error(throwable.getMessage(), throwable);
         Map<String, Object> errorResponse = new LinkedHashMap<>();

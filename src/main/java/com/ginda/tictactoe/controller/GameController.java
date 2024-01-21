@@ -26,7 +26,7 @@ public class GameController {
 
     private static final String REDIRECT_TO_GAME = "http://localhost:8081/tic-tac-toe/game/%s";
 
-    @GetMapping(value = "/game", produces = "application/json", consumes = "application/json")
+    @PostMapping(value = "/game", produces = "application/json", consumes = "application/json")
     public ResponseEntity<CreateGameResponse> createNewGame(@RequestBody CreateGameRequest request) throws BadRequestException {
         log.info("create new game");
         CreateGameResponse response = service.createNewGame(request);
@@ -34,7 +34,7 @@ public class GameController {
     }
 
 
-    @GetMapping(value = "/game/{gameId}", produces = "text/plain", consumes = "application/json")
+    @PutMapping(value = "/game/{gameId}", produces = "application/json", consumes = "application/json")
     public ResponseEntity<BoardResponse> move(@RequestBody Move move, @PathVariable int gameId) throws ConflictException, BadRequestException, NotFoundException {
         log.info("make move");
         BoardResponse response = service.move(move, gameId);

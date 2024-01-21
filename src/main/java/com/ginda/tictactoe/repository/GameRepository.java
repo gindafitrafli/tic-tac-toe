@@ -20,7 +20,7 @@ public class GameRepository {
     }
 
     public void addNewBoardByGameId(Board board, int gameId) {
-        Game currentGame;
+        Game currentGame = new Game();
         int currentIdx=0;
         for (Game game: gameList) {
             if (game.getId()==gameId){
