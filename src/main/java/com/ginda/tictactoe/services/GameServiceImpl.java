@@ -21,6 +21,8 @@ import org.springframework.util.ObjectUtils;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.Math.pow;
+
 @Service
 @Slf4j
 public class GameServiceImpl implements GameService{
@@ -275,7 +277,7 @@ public class GameServiceImpl implements GameService{
             return Status.O_WIN;
         }
 
-        if (currentBoard.getFilledGrid()==(currentBoard.getGridSize()^2)) {
+        if (currentBoard.getFilledGrid()==(pow(currentBoard.getGridSize(), 2))) {
             return Status.DRAW;
         }
 
