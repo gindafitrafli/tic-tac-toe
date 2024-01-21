@@ -9,6 +9,7 @@ import com.ginda.tictactoe.model.Status;
 import com.ginda.tictactoe.model.User;
 import com.ginda.tictactoe.model.request.CreateGameRequest;
 import com.ginda.tictactoe.model.request.Move;
+import com.ginda.tictactoe.model.response.BoardResponse;
 import com.ginda.tictactoe.model.response.CreateGameResponse;
 import com.ginda.tictactoe.model.response.Game;
 import com.ginda.tictactoe.repository.GameRepository;
@@ -68,7 +69,7 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public String move(Move move, int gameId) throws BadRequestException, NotFoundException, ConflictException {
+    public BoardResponse move(Move move, int gameId) throws BadRequestException, NotFoundException, ConflictException {
         validateMoveRequest(move, gameId);
         Board currentBoard = getCurrentBoard(gameId);
         char currentChar;
@@ -79,13 +80,17 @@ public class GameServiceImpl implements GameService{
         }
         char [][] currentGrid = currentBoard.getGrid();
         currentGrid[move.getRow()-1][move.getColumn()-1] = currentChar;
-        Status boardStatus =
-
-
         currentBoard.setGrid(currentGrid);
+        Status currentBoardStatus = getBoardStatus(currentBoard, move.getRow() - 1, move.getColumn() - 1, currentChar);
 
-
-        return null;
+        currentBoard.setFilledGrid(currentBoard.getFilledGrid()+1);
+        currentBoard.setStatus(currentBoardStatus);
+        setCurrentBoard(currentBoard, gameId);
+        BoardResponse boardResponse = new BoardResponse();
+        boardResponse.setStatus(currentBoardStatus);
+        boardResponse.setScore(updateScore(gameId, currentBoardStatus));
+        boardResponse.setGrid(currentGrid);
+        return boardResponse;
     }
 
     private void validateCreateNewGameRequest(CreateGameRequest request) throws BadRequestException {
@@ -146,15 +151,12 @@ public class GameServiceImpl implements GameService{
                 return false;
             }
         }
+
         return true;
     }
 
     private List<Board> createNewBoardList(int boardSize) {
-        char[][] grid = new char[boardSize][boardSize];
-        Board board = new Board();
-        board.setId(1);
-        board.setGrid(grid);
-        return Collections.singletonList(board);
+        return Collections.singletonList(createNewBoard(boardSize, 1));
     }
 
     private Score createInitialScore() {
@@ -201,29 +203,108 @@ public class GameServiceImpl implements GameService{
 
     }
 
+    private Game getCurrentGame(int gameId) {
+        return gameRepository.getGameList().stream().filter(game -> game.getId()==gameId).findFirst().orElse(null);
+    }
+
     private Board getCurrentBoard(int gameId) {
-        for (Game game : gameRepository.getGameList()) {
-            if (game.getId()==gameId) {
-                return game.getBoardList().get((game.getBoardList().size())-1);
-            }
+        Game currentGame = getCurrentGame(gameId);
+        List<Board> boardList = currentGame.getBoardList();
+
+        Board currentBoard = boardList.stream().filter(board -> board.getStatus() == Status.ON_GOING)
+                .findFirst().orElse(null);
+        if (currentBoard==null){
+            currentBoard = createNewBoard(currentGame.getGridSize(), boardList.size()+1);
         }
-        return null;
+        return currentBoard;
+
+    }
+
+    private Board createNewBoard(int gridSize, int id) {
+        char[][] grid = new char[gridSize][gridSize];
+        Board board = new Board();
+        board.setId(id);
+        board.setGrid(grid);
+        board.setGridSize(gridSize);
+        board.setStatus(Status.ON_GOING);
+        board.setFilledGrid(0);
+        return board;
     }
 
     private void setCurrentBoard(Board board, int gameId) {
+        boolean isBoardNew = true;
         for (Game game : gameRepository.getGameList()) {
             if (game.getId()==gameId) {
-                game.getBoardList().set((game.getBoardList().size())-1, board);
-                break;
+                for (Board board1: game.getBoardList()){
+                    if (board1.getId() == board.getId()){
+                        board1 = board;
+                        isBoardNew = false;
+                        break;
+                    }
+                }
+                if (isBoardNew) {
+                    gameRepository.addNewBoardByGameId(board, gameId);
+                }
             }
         }
     }
 
-    private boolean getBoardStatus(Board currentBoard, int row, int column, char currentChar) {
-        if () {
-
+    private Status getBoardStatus(Board currentBoard, int row, int column, char currentChar) {
+        boolean rowCheck=true;
+        boolean columnCheck=true;
+        boolean diag1Check=true;
+        boolean diag2Check=true;
+        char[] [] currentGrid = currentBoard.getGrid();
+        for (int i =0; i< currentBoard.getGridSize(); i++) {
+            rowCheck = rowCheck && (currentGrid[row][i]==currentChar);
+        }
+        for (int i =0; i< currentBoard.getGridSize(); i++) {
+            columnCheck = columnCheck && (currentGrid[i][column]==currentChar);
+        }
+        for (int i =0; i< currentBoard.getGridSize(); i++) {
+            diag1Check = diag1Check && (currentGrid[i][i]==currentChar);
+        }
+        for (int i =0; i< currentBoard.getGridSize(); i++) {
+            diag2Check = diag2Check && (currentGrid[currentBoard.getGridSize()-i-1][i]==currentChar);
         }
 
+        if (diag2Check || diag1Check || columnCheck || rowCheck) {
+            if (currentChar=='X') {
+                return Status.X_WIN;
+            }
+            return Status.O_WIN;
+        }
+
+        if (currentBoard.getFilledGrid()==(currentBoard.getGridSize()^2)) {
+            return Status.DRAW;
+        }
+
+        return Status.ON_GOING;
+    }
+
+    private Score updateScore(int gameId, Status status) {
+        if (status == Status.ON_GOING || status == Status.DRAW) {
+            return gameRepository.getGameList().stream().filter(game -> game.getId()==gameId).findFirst().orElse(null).getScore();
+        }
+        int currentGameIdx = 0;
+        for (Game game:gameRepository.getGameList()) {
+            if (game.getId()==gameId) {
+                break;
+            }
+            currentGameIdx+=1;
+        }
+        Game currentGame = gameRepository.getGameList().get(currentGameIdx);
+        Score currentScore = currentGame.getScore();
+        currentGame.setScore(currentScore);
+        if (status==Status.O_WIN){
+            currentScore.setoScore(currentScore.getoScore()+1);
+        } else if(status==Status.X_WIN) {
+            currentScore.setxScore(currentScore.getxScore()+1);
+        }
+        currentGame.setScore(currentScore);
+        gameRepository.getGameList().set(currentGameIdx,currentGame);
+
+        return currentScore;
     }
 
 }

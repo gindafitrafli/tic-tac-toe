@@ -9,6 +9,9 @@ public class Board {
     private char[][] grid;
     @JsonIgnore
     private int filledGrid;
+    @JsonIgnore
+    private int gridSize;
+    private Status status;
 
     public int getId() {
         return id;
@@ -32,5 +35,21 @@ public class Board {
 
     public void setFilledGrid(int filledGrid) {
         this.filledGrid = filledGrid;
+    }
+
+    public int getGridSize() {
+        return gridSize;
+    }
+
+    public void setGridSize(int gridSize) {
+        this.gridSize = gridSize;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
