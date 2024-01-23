@@ -34,7 +34,7 @@ public class GameController {
     }
 
 
-    @PutMapping(value = "/game/{gameId}", produces = "application/json", consumes = "application/json")
+    @PostMapping(value = "/game/{gameId}", produces = "application/json", consumes = "application/json")
     public ResponseEntity<BoardResponse> move(@RequestBody Move move, @PathVariable int gameId) throws ConflictException, BadRequestException, NotFoundException {
         log.info("make move");
         BoardResponse response = service.move(move, gameId);
